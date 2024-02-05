@@ -33,6 +33,14 @@ public class YingYang extends Application {
         graphics.setTransform(new AffineTransform());
         graphics.setBackground(Color.white);
         graphics.clearRect(0, 0, (int) canvas.getWidth(), (int) canvas.getHeight());
+        int size = 200;
+        int offset = 0;
+        GeneralPath path = new GeneralPath();
+        path.moveTo(offset+(size/2),offset);
+        path.curveTo(size*1.2+offset, offset, size*1.2+offset,size+offset, offset+(size/2),size+offset);
+        path.closePath();
+
+        graphics.draw(path);
     }
 
 
