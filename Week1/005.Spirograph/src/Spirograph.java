@@ -2,6 +2,7 @@ import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -19,6 +20,7 @@ public class Spirograph extends Application {
     private TextField v2;
     private TextField v3;
     private TextField v4;
+    private RadioButton v5;
     private Canvas canvas;
     private  VBox mainBox;
     
@@ -35,6 +37,8 @@ public class Spirograph extends Application {
         topBar.getChildren().add(v2 = new TextField("1"));  //main arm angle
         topBar.getChildren().add(v3 = new TextField("400")); //second arm offset
         topBar.getChildren().add(v4 = new TextField("4")); //second arm angle (# of loops-1?)
+        topBar.getChildren().add(v5 = new RadioButton("overlap"));
+        v5.setSelected(false);
 
         FXGraphics2D graphics = new FXGraphics2D(canvas.getGraphicsContext2D());
         graphics.translate(canvas.getWidth()/2, canvas.getHeight()/2); //using translate in draw() keeps moving it further
@@ -56,6 +60,12 @@ public class Spirograph extends Application {
     //you can use Double.parseDouble(v1.getText()) to get a double value from the first textfield
 
     public void draw(FXGraphics2D graphics) {
+        if(!v5.isSelected()){
+            graphics.translate(-canvas.getWidth(), -canvas.getHeight());
+            graphics.setBackground(Color.white);
+            graphics.clearRect(0, 0, (int) canvas.getWidth()*2, (int) canvas.getHeight()*2);
+            graphics.translate(canvas.getWidth(), canvas.getHeight());
+        }
 //        mainBox.getChildren().remove(1);
 //        this.canvas = new Canvas(1080-100, 1080-100);
 //        mainBox.getChildren().add(canvas);
