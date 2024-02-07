@@ -33,17 +33,38 @@ public class YingYang extends Application {
         graphics.setTransform(new AffineTransform());
         graphics.setBackground(Color.white);
         graphics.clearRect(0, 0, (int) canvas.getWidth(), (int) canvas.getHeight());
-        int size = 200;
-        int offset = 0;
-        GeneralPath path = new GeneralPath();
-        path.moveTo(offset+(size/2),offset);
-        path.curveTo(size*1.2+offset, offset, size*1.2+offset,size+offset, offset+(size/2),size+offset);
-        path.closePath();
 
-        graphics.draw(path);
+        drawYinYang(graphics, 50, 50, 200, Color.WHITE, Color.BLACK);
+        //drawYinYang(graphics, 255, 50, 200, Color.WHITE, Color.GREEN);
     }
 
+    public static void drawYinYang(FXGraphics2D graphics, int x, int y, int size, Color colorBase, Color colorSecondary){
+        GeneralPath path = new GeneralPath();
+        path.moveTo(x+(size/2),y);
+        path.curveTo(size*1.162+x, y, size*1.162+x,size+y, x+(size/2),size+y);
+        path.closePath();
 
+        Area body = new Area(path);
+        Area circleBase = new Area(new Ellipse2D.Double(x,y,size,size));
+        Area circleSubtract = new Area(new Ellipse2D.Double(x+(size/4),y, size/2, size/2));
+        Area circleAdd = new Area(new Ellipse2D.Double(x+(size/4),y+(size/2), size/2, size/2));
+        Area smallCircleSubtract = new Area(new Ellipse2D.Double(x+((size/2)-(size/16)), y+((size/2)+(size/16*3)), size/8, size/8));
+        Area smallCircleAdd = new Area(new Ellipse2D.Double(x+((size/2)-(size/16)), y+(size/16*3), size/8, size/8));
+
+        body.add(circleAdd);
+        body.subtract(circleSubtract);
+        body.subtract(smallCircleSubtract);
+        body.add(smallCircleAdd);
+
+        graphics.setColor(colorBase);
+        graphics.fill(circleBase);
+
+        graphics.setColor(colorSecondary);
+        graphics.fill(body);
+
+        graphics.draw(circleBase);
+        graphics.draw(body);
+    }
     public static void main(String[] args)
     {
         launch(YingYang.class);
