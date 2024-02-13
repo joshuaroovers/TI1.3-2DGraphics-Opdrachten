@@ -28,8 +28,10 @@ public class GradientPaintExercise extends Application {
 
         draw(new FXGraphics2D(canvas.getGraphicsContext2D()),canvas.getWidth()/2,canvas.getHeight()/2);
         canvas.setOnMouseDragged(e ->{
-
-            draw(new FXGraphics2D(canvas.getGraphicsContext2D()), MouseInfo.getPointerInfo().getLocation().x-primaryStage.getX(), MouseInfo.getPointerInfo().getLocation().y-primaryStage.getY());
+            //double titleBarHeight = primaryStage.getHeight() - canvas.getHeight();
+//            double relativeX = MouseInfo.getPointerInfo().getLocation().x -primaryStage.getX();
+//            double relativeY = MouseInfo.getPointerInfo().getLocation().y -primaryStage.getY() - titleBarHeight;
+            draw(new FXGraphics2D(canvas.getGraphicsContext2D()), e.getX(), e.getY());
         });
     }
 
