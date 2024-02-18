@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.geom.*;
+import java.util.ArrayList;
 
 import javafx.application.Application;
 
@@ -15,10 +16,17 @@ import org.jfree.fx.ResizableCanvas;
 
 public class BlockDrag extends Application {
     ResizableCanvas canvas;
+    ArrayList<Renderable> renderables;
 
     @Override
     public void start(Stage primaryStage) throws Exception
     {
+        renderables = new ArrayList<>();
+        renderables.add(new Renderable(0,0,100,Color.BLUE, new Rectangle2D.Double(0,0,100,100)));
+        renderables.add(new Renderable(100,0,100,Color.RED, new Rectangle2D.Double(100,0,100,100)));
+        renderables.add(new Renderable(0,100,100,Color.GREEN, new Rectangle2D.Double(0,100,100,100)));
+        renderables.add(new Renderable(100,100,100,Color.YELLOW, new Rectangle2D.Double(100,100,100,100)));
+
         BorderPane mainPane = new BorderPane();
         canvas = new ResizableCanvas(g -> draw(g), mainPane);
         mainPane.setCenter(canvas);
@@ -39,6 +47,11 @@ public class BlockDrag extends Application {
         graphics.setTransform(new AffineTransform());
         graphics.setBackground(Color.white);
         graphics.clearRect(0, 0, (int) canvas.getWidth(), (int) canvas.getHeight());
+
+        for(Renderable ren : renderables){
+            ren.draw(graphics);
+        }
+
     }
 
 
@@ -53,11 +66,16 @@ public class BlockDrag extends Application {
 
     private void mouseReleased(MouseEvent e)
     {
-
     }
 
     private void mouseDragged(MouseEvent e)
     {
+        for(Renderable ren : renderables){
+            if(ren.contains(e.getX(),e.getY())){
+                ren.setPos(e.getX(),e.getY());
+                draw(new FXGraphics2D(canvas.getGraphicsContext2D()));
+            }
+        }
     }
 
 }
