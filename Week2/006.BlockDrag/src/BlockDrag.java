@@ -17,6 +17,7 @@ import org.jfree.fx.ResizableCanvas;
 public class BlockDrag extends Application {
     ResizableCanvas canvas;
     ArrayList<Renderable> renderables;
+    Renderable selected;
 
     @Override
     public void start(Stage primaryStage) throws Exception
@@ -62,19 +63,24 @@ public class BlockDrag extends Application {
 
     private void mousePressed(MouseEvent e)
     {
+        for(Renderable ren : renderables){
+            if(ren.contains(e.getX(),e.getY())){
+                selected = ren;
+                draw(new FXGraphics2D(canvas.getGraphicsContext2D()));
+            }
+        }
     }
 
     private void mouseReleased(MouseEvent e)
     {
+        selected = null;
     }
 
     private void mouseDragged(MouseEvent e)
     {
-        for(Renderable ren : renderables){
-            if(ren.contains(e.getX(),e.getY())){
-                ren.setPos(e.getX(),e.getY());
-                draw(new FXGraphics2D(canvas.getGraphicsContext2D()));
-            }
+        if(selected != null) {
+            selected.setPos(e.getX(), e.getY());
+            draw(new FXGraphics2D(canvas.getGraphicsContext2D()));
         }
     }
 
