@@ -15,6 +15,7 @@ import org.jfree.fx.ResizableCanvas;
 
 public class FadingImage extends Application {
     private ResizableCanvas canvas;
+    private FadingImageSet imageSet;
     
     @Override
     public void start(Stage stage) throws Exception {
@@ -23,6 +24,10 @@ public class FadingImage extends Application {
         canvas = new ResizableCanvas(g -> draw(g), mainPane);
         mainPane.setCenter(canvas);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
+
+        imageSet = new FadingImageSet((int)canvas.getWidth()/2, (int)canvas.getHeight()/2, (int)canvas.getWidth()/2, (int)canvas.getHeight()/2);
+        imageSet.addImage("Olarya Weaveling 2.png");
+
         new AnimationTimer() {
             long last = -1;
             @Override
@@ -46,6 +51,9 @@ public class FadingImage extends Application {
         graphics.setTransform(new AffineTransform());
         graphics.setBackground(Color.white);
         graphics.clearRect(0, 0, (int)canvas.getWidth(), (int)canvas.getHeight());
+
+        if(imageSet != null)
+            imageSet.draw(graphics);
     }
     
 
