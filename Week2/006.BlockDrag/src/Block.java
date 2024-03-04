@@ -1,8 +1,7 @@
 import java.awt.*;
-import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 
-public class Renderable {
+public class Block {
     private double posX;
     private double posY;
     private int size;
@@ -10,7 +9,7 @@ public class Renderable {
     private Rectangle2D rectangle;
 
 
-    public Renderable(double posX, double posY, int size, Color color, Rectangle2D rectangle) {
+    public Block(double posX, double posY, int size, Color color, Rectangle2D rectangle) {
         this.posX = posX;
         this.posY = posY;
         this.size = size;

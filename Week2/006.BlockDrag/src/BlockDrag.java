@@ -6,7 +6,6 @@ import javafx.application.Application;
 
 import static javafx.application.Application.launch;
 
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -16,17 +15,17 @@ import org.jfree.fx.ResizableCanvas;
 
 public class BlockDrag extends Application {
     ResizableCanvas canvas;
-    ArrayList<Renderable> renderables;
-    Renderable selected;
+    ArrayList<Block> renderables;
+    Block selected;
 
     @Override
     public void start(Stage primaryStage) throws Exception
     {
         renderables = new ArrayList<>();
-        renderables.add(new Renderable(0,0,100,Color.BLUE, new Rectangle2D.Double(0,0,100,100)));
-        renderables.add(new Renderable(100,0,100,Color.RED, new Rectangle2D.Double(100,0,100,100)));
-        renderables.add(new Renderable(0,100,100,Color.GREEN, new Rectangle2D.Double(0,100,100,100)));
-        renderables.add(new Renderable(100,100,100,Color.YELLOW, new Rectangle2D.Double(100,100,100,100)));
+        renderables.add(new Block(0,0,100,Color.BLUE, new Rectangle2D.Double(0,0,100,100)));
+        renderables.add(new Block(100,0,100,Color.RED, new Rectangle2D.Double(100,0,100,100)));
+        renderables.add(new Block(0,100,100,Color.GREEN, new Rectangle2D.Double(0,100,100,100)));
+        renderables.add(new Block(100,100,100,Color.YELLOW, new Rectangle2D.Double(100,100,100,100)));
 
         BorderPane mainPane = new BorderPane();
         canvas = new ResizableCanvas(g -> draw(g), mainPane);
@@ -49,7 +48,7 @@ public class BlockDrag extends Application {
         graphics.setBackground(Color.white);
         graphics.clearRect(0, 0, (int) canvas.getWidth(), (int) canvas.getHeight());
 
-        for(Renderable ren : renderables){
+        for(Block ren : renderables){
             ren.draw(graphics);
         }
 
@@ -63,7 +62,7 @@ public class BlockDrag extends Application {
 
     private void mousePressed(MouseEvent e)
     {
-        for(Renderable ren : renderables){
+        for(Block ren : renderables){
             if(ren.contains(e.getX(),e.getY())){
                 selected = ren;
                 draw(new FXGraphics2D(canvas.getGraphicsContext2D()));
