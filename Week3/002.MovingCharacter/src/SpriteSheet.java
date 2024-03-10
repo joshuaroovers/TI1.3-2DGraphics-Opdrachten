@@ -5,13 +5,13 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public class SpriteSheet {
-    private int posX;
-    private int posY;
+    private double posX;
+    private double posY;
     private BufferedImage[] tiles;
     private int framesCount;
-    private int currentFrame;
+    private double currentFrame;
 
-    public SpriteSheet(int subImageCount, int subImageColumnCount, int subImageRowCount, int posX, int posY ) {
+    public SpriteSheet(String spritePath, int subImageCount, int subImageColumnCount, int subImageRowCount, int posX, int posY ) {
         System.out.println("starting to create SpriteSheet");
         this.framesCount = subImageCount;
         this.currentFrame = 0;
@@ -19,7 +19,7 @@ public class SpriteSheet {
         this.posY = posY;
 
         try {
-            BufferedImage image = ImageIO.read(getClass().getResource("/images/sprite.png"));
+            BufferedImage image = ImageIO.read(getClass().getResource(spritePath));
             tiles = new BufferedImage[subImageCount];
             int subImageWidth = image.getWidth()/subImageColumnCount;
             int subImageHeight = image.getHeight()/subImageRowCount;
@@ -34,25 +34,30 @@ public class SpriteSheet {
     }
 
     private BufferedImage getTile() {
-        return tiles[currentFrame];
+        int frameRow = 5;
+        //why????????????????????????????????????
+//        if(currentFrame < frameRow*8-1-3 || currentFrame > (frameRow+1)*8-1-3)
+//            currentFrame = frameRow*8-1-3;
+        System.out.println("current frame: "+ currentFrame);
+        return tiles[(int)currentFrame];
     }
 
     public void draw(FXGraphics2D graphics){
         AffineTransform transform = new AffineTransform();
-        transform.translate(posX-(this.getTile().getWidth()/2), posY);
-
+        transform.translate(posX/*-(this.getTile().getWidth()/2)*/, posY);
+        transform.scale(4,4);
         graphics.drawImage(this.getTile(), transform, null);
     }
 
-    public void update(){
-
+    public void update(double increment){
+        this.posX += increment;
     }
 
-    public void frameStep(){
-        if(currentFrame < framesCount-1){
-            currentFrame +=1;
-        }else{
+    public void frameStep(double step){
+        if(currentFrame >= framesCount){
             currentFrame = 0;
+        }else{
+            currentFrame +=step;
         }
 
     }
