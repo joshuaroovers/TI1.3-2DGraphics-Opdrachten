@@ -1,7 +1,5 @@
 import java.awt.*;
 import java.awt.geom.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Random;
 
 import javafx.animation.AnimationTimer;
@@ -9,14 +7,10 @@ import javafx.application.Application;
 
 import static javafx.application.Application.launch;
 
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
-import javax.imageio.ImageIO;
-import javax.sound.sampled.Clip;
 
 import org.jfree.fx.FXGraphics2D;
 import org.jfree.fx.ResizableCanvas;
@@ -80,6 +74,8 @@ public class Spotlight extends Application {
         graphics.setBackground(Color.white);
         graphics.clearRect(0, 0, (int) canvas.getWidth(), (int) canvas.getHeight());
 
+//        graphics.setColor(Color.RED);
+//        graphics.draw(new Rectangle2D.Double(currentClip.getClip().getBounds().getX(), currentClip.getClip().getBounds().getY(), currentClip.getClip().getBounds().getWidth(), currentClip.getClip().getBounds().getHeight()));
         graphics.setColor(Color.BLACK);
         graphics.draw(currentClip.getClip());
         graphics.setClip(currentClip.getClip());
@@ -105,11 +101,13 @@ public class Spotlight extends Application {
     public void init()
     {
         int size = 200;
-        clips = new ClippingShape[4];
+        clips = new ClippingShape[6];
         clips[0] = new ClippingShapeCircle(new Point2D.Double(MouseInfo.getPointerInfo().getLocation().getX()-(size/2),MouseInfo.getPointerInfo().getLocation().getY()-(size/2)), size);
         clips[1] = new ClippingShapeSquare(new Point2D.Double(MouseInfo.getPointerInfo().getLocation().getX()-(size/2),MouseInfo.getPointerInfo().getLocation().getY()-(size/2)), size);
-        clips[2] = new ClippingShapeCircle(new Point2D.Double(MouseInfo.getPointerInfo().getLocation().getX()-(size),MouseInfo.getPointerInfo().getLocation().getY()-(size)), size*2);
-        clips[3] = new ClippingShapeSquare(new Point2D.Double(MouseInfo.getPointerInfo().getLocation().getX()-(size),MouseInfo.getPointerInfo().getLocation().getY()-(size)), size*2);
+        clips[2] = new ClippingShapeSpecial(new Point2D.Double(MouseInfo.getPointerInfo().getLocation().getX()-(size/2),MouseInfo.getPointerInfo().getLocation().getY()-(size/2)), size);
+        clips[3] = new ClippingShapeCircle(new Point2D.Double(MouseInfo.getPointerInfo().getLocation().getX()-(size),MouseInfo.getPointerInfo().getLocation().getY()-(size)), size*2);
+        clips[4] = new ClippingShapeSquare(new Point2D.Double(MouseInfo.getPointerInfo().getLocation().getX()-(size),MouseInfo.getPointerInfo().getLocation().getY()-(size)), size*2);
+        clips[5] = new ClippingShapeSpecial(new Point2D.Double(MouseInfo.getPointerInfo().getLocation().getX()-(size),MouseInfo.getPointerInfo().getLocation().getY()-(size)), size*2);
 
         currentClip = clips[currentClipIndex];
     }

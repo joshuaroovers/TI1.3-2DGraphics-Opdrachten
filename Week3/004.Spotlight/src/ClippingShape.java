@@ -6,7 +6,9 @@ abstract class ClippingShape {
     Shape shape;
     double size;
 
-    public abstract Shape getClip();
+    abstract Shape getClip();
 
-    public abstract void update(Point2D pos);
+    abstract void update(Point2D pos);
+
+    abstract Shape getShape(Point2D pos, double size);
 }

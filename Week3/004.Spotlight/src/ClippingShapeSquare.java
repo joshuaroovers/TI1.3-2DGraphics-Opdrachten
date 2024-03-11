@@ -8,7 +8,7 @@ public class ClippingShapeSquare extends ClippingShape{
     public ClippingShapeSquare(Point2D pos, double size) {
         this.position = pos;
         this.size = size;
-        this.shape = new Rectangle2D.Double(pos.getX(),pos.getY(),size,size);
+        this.shape = getShape(pos,size);
     }
 
     @Override
@@ -19,6 +19,11 @@ public class ClippingShapeSquare extends ClippingShape{
     @Override
     public void update(Point2D pos) {
         this.position = pos;
-        this.shape = new Rectangle2D.Double(pos.getX(),pos.getY(),size,size);
+        this.shape = getShape(pos,size);
+    }
+
+    @Override
+    Shape getShape(Point2D pos, double size) {
+        return new Rectangle2D.Double(pos.getX(),pos.getY(),size,size);
     }
 }

@@ -7,7 +7,7 @@ public class ClippingShapeCircle extends ClippingShape{
     public ClippingShapeCircle(Point2D pos, double size) {
         this.position = pos;
         this.size = size;
-        this.shape = new Ellipse2D.Double(pos.getX(),pos.getY(),size,size);
+        this.shape = getShape(pos,size);
     }
 
     @Override
@@ -18,6 +18,11 @@ public class ClippingShapeCircle extends ClippingShape{
     @Override
     public void update(Point2D pos) {
         this.position = pos;
-        this.shape = new Ellipse2D.Double(pos.getX(),pos.getY(),size,size);
+        this.shape = getShape(pos,size);
+    }
+
+    @Override
+    Shape getShape(Point2D pos, double size) {
+        return new Ellipse2D.Double(pos.getX(),pos.getY(),size,size);
     }
 }
