@@ -33,8 +33,8 @@ public class MovingCharacter extends Application {
         mainPane.setCenter(canvas);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         
-        //character = new SpriteSheet("/images/sprite.png",(8*8+1),8,9, /*(int)canvas.getWidth()/2*/0, (int)canvas.getHeight()/2);
-        character = new SpriteSheet("/images/testingSprite.png",(8*8),8,8, /*(int)canvas.getWidth()/2*/0, (int)canvas.getHeight()/2);
+        character = new SpriteSheet("/images/sprite.png",(8*8+1),8,9, /*(int)canvas.getWidth()/2*/ 0, (int)canvas.getHeight()/2);
+//        character = new SpriteSheet("/images/testingSprite.png",(8*8),8,8, /*(int)canvas.getWidth()/2*/0, (int)canvas.getHeight()/2);
 
         new AnimationTimer() {
             long last = -1;
@@ -44,8 +44,8 @@ public class MovingCharacter extends Application {
             {
                 if (last == -1)
                     last = now;
-                draw(g2d);
                 update((now - last) / 1000000000.0);
+                draw(g2d);
                 //System.out.println(now-last);
                 last = now;
 
@@ -56,6 +56,8 @@ public class MovingCharacter extends Application {
         stage.setTitle("Moving Character");
         stage.show();
         draw(g2d);
+
+        character.drawSpriteSheet(g2d);
     }
 
 
@@ -64,7 +66,7 @@ public class MovingCharacter extends Application {
         graphics.setTransform(new AffineTransform());
         graphics.setBackground(Color.white);
         graphics.clearRect(0, 0, (int) canvas.getWidth(), (int) canvas.getHeight());
-
+        //character.drawSpriteSheet(graphics);
         character.draw(graphics);
 
 //        AffineTransform tx = new AffineTransform();
@@ -75,10 +77,11 @@ public class MovingCharacter extends Application {
     }
 
 
+
+
     public void update(double deltaTime)
     {
 //        count+= deltaTime/10;
-        character.frameStep(deltaTime*2);
         character.update(deltaTime*15);
         //this.draw(new FXGraphics2D());
 //        System.out.println(deltaTime);
