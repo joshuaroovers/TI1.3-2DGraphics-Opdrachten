@@ -11,9 +11,13 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
+import javafx.scene.control.Button;
 import org.jfree.fx.FXGraphics2D;
 import org.jfree.fx.ResizableCanvas;
+
+
 
 public class VerletEngine extends Application {
 
@@ -25,6 +29,21 @@ public class VerletEngine extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         BorderPane mainPane = new BorderPane();
+
+        Button saveButton = new Button("save");
+        saveButton.setOnAction(event -> {
+
+        });
+        Button loadButton = new Button("load");
+        loadButton.setOnAction(event -> {
+
+        });
+        FlowPane menuPane = new FlowPane();
+        mainPane.setTop(menuPane);
+
+
+
+
         canvas = new ResizableCanvas(g -> draw(g), mainPane);
         mainPane.setCenter(canvas);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
@@ -92,30 +111,73 @@ public class VerletEngine extends Application {
     }
 
     private void mouseClicked(MouseEvent e) {
+
         Point2D mousePosition = new Point2D.Double(e.getX(), e.getY());
         Particle nearest = getNearest(mousePosition);
-        Particle newParticle = new Particle(mousePosition);
-        particles.add(newParticle);
-        constraints.add(new DistanceConstraint(newParticle, nearest));
+        if (nearest.getPosition().distance(mousePosition) > 10) {
+            if (!e.isShiftDown()) {
+            Particle newParticle = new Particle(mousePosition);
+            particles.add(newParticle);
 
-        if (e.getButton() == MouseButton.SECONDARY) {
-            ArrayList<Particle> sorted = new ArrayList<>();
-            sorted.addAll(particles);
-
-            //sorteer alle elementen op afstand tot de muiscursor. De toegevoegde particle staat op 0, de nearest op 1, en de derde op 2
-            Collections.sort(sorted, new Comparator<Particle>() {
-                @Override
-                public int compare(Particle o1, Particle o2) {
-                    return (int) (o1.getPosition().distance(mousePosition) - o2.getPosition().distance(mousePosition));
+                if (e.getButton() == MouseButton.PRIMARY) {
+                    if (e.isControlDown()) {
+                        constraints.add(new PositionConstraint(newParticle));
+                    } else {
+                        constraints.add(new DistanceConstraint(newParticle, nearest));
+                    }
                 }
-            });
 
-            constraints.add(new DistanceConstraint(newParticle, sorted.get(2)));
-        } else if (e.getButton() == MouseButton.MIDDLE) {
-            // Reset
-            particles.clear();
-            constraints.clear();
-            init();
+                else if (e.getButton() == MouseButton.SECONDARY) {
+                    ArrayList<Particle> sorted = new ArrayList<>();
+                    sorted.addAll(particles);
+
+                    //sorteer alle elementen op afstand tot de muiscursor. De toegevoegde particle staat op 0, de nearest op 1, en de derde op 2
+                    Collections.sort(sorted, new Comparator<Particle>() {
+                        @Override
+                        public int compare(Particle o1, Particle o2) {
+                            return (int) (o1.getPosition().distance(mousePosition) - o2.getPosition().distance(mousePosition));
+                        }
+                    });
+
+                    if (e.isControlDown()) {
+                        constraints.add(new DistanceConstraint(newParticle, nearest, 100));
+                        constraints.add(new DistanceConstraint(newParticle, sorted.get(2), 100));
+                    } else {
+                        constraints.add(new DistanceConstraint(newParticle, nearest));
+                        constraints.add(new DistanceConstraint(newParticle, sorted.get(2)));
+                    }
+
+                }
+
+                else if (e.getButton() == MouseButton.MIDDLE) {
+
+                    // Reset
+                    particles.clear();
+                    constraints.clear();
+                    init();
+                }
+            }
+            else {
+                if(e.getButton() == MouseButton.PRIMARY){
+                    Particle newParticle = new Particle(mousePosition);
+                    particles.add(newParticle);
+                    constraints.add(new RopeConstraint(newParticle, nearest));
+                }
+                else if (e.getButton() == MouseButton.SECONDARY) {
+                    ArrayList<Particle> sorted = new ArrayList<>();
+                    sorted.addAll(particles);
+
+                    //sorteer alle elementen op afstand tot de muiscursor. De toegevoegde particle staat op 0, de nearest op 1, en de derde op 2
+                    Collections.sort(sorted, new Comparator<Particle>() {
+                        @Override
+                        public int compare(Particle o1, Particle o2) {
+                            return (int) (o1.getPosition().distance(mousePosition) - o2.getPosition().distance(mousePosition));
+                        }
+                    });
+
+                    constraints.add(new DistanceConstraint(sorted.get(0), sorted.get(1)));
+                }
+            }
         }
     }
 
