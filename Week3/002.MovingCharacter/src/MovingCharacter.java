@@ -1,27 +1,22 @@
 import java.awt.*;
 import java.awt.geom.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
-import java.io.IOException;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 
 import static javafx.application.Application.launch;
 
-import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
-import javax.imageio.ImageIO;
 
 import org.jfree.fx.FXGraphics2D;
 import org.jfree.fx.ResizableCanvas;
 
 public class MovingCharacter extends Application {
     private ResizableCanvas canvas;
-    private SpriteSheet character;
+    private Character character;
     double count = 0;
     double angle;
 
@@ -33,8 +28,10 @@ public class MovingCharacter extends Application {
         mainPane.setCenter(canvas);
         FXGraphics2D g2d = new FXGraphics2D(canvas.getGraphicsContext2D());
         
-        character = new SpriteSheet("/images/sprite.png",(8*8+1),8,9, /*(int)canvas.getWidth()/2*/ 0, (int)canvas.getHeight()/2);
+        character = new Character("/images/sprite.png",(8*8+1),8,9, /*(int)canvas.getWidth()/2*/ 0, (int)canvas.getHeight()/2);
 //        character = new SpriteSheet("/images/testingSprite.png",(8*8),8,8, /*(int)canvas.getWidth()/2*/0, (int)canvas.getHeight()/2);
+
+        canvas.setOnMousePressed(e -> mousePressed(e));
 
         new AnimationTimer() {
             long last = -1;
@@ -86,6 +83,11 @@ public class MovingCharacter extends Application {
         //this.draw(new FXGraphics2D());
 //        System.out.println(deltaTime);
 //        angle+=count;
+    }
+
+    private void mousePressed(MouseEvent e)
+    {
+        character.setState(Character.characterState.JUMPING);
     }
 
     public static void main(String[] args)
