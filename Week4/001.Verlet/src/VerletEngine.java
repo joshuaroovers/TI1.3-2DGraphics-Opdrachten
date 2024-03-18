@@ -8,12 +8,14 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.scene.Scene;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 import org.jfree.fx.FXGraphics2D;
 import org.jfree.fx.ResizableCanvas;
 
@@ -22,8 +24,9 @@ import org.jfree.fx.ResizableCanvas;
 public class VerletEngine extends Application {
 
     private ResizableCanvas canvas;
-    private ArrayList<Particle> particles = new ArrayList<>();
-    private ArrayList<Constraint> constraints = new ArrayList<>();
+    private ParticlesAndConstraintsSet data;
+//    private ArrayList<Particle> particles = new ArrayList<>();
+//    private ArrayList<Constraint> constraints = new ArrayList<>();
     private PositionConstraint mouseConstraint = new PositionConstraint(null);
 
     @Override
@@ -32,13 +35,70 @@ public class VerletEngine extends Application {
 
         Button saveButton = new Button("save");
         saveButton.setOnAction(event -> {
-
+            IOController.saveObjectToFile("dataSet", data);
+            IOController.saveObjectToFile("dataSet", data);
         });
         Button loadButton = new Button("load");
         loadButton.setOnAction(event -> {
+            data = (ParticlesAndConstraintsSet) IOController.getObjectFromFile("dataSet");
+//            for (Object particle : (ArrayList<Object>) IOController.getObjectFromFile("particles")) {
+//                particles.add((Particle)particle);
+//            }
+//            for(Object constraint : (ArrayList<Object>) IOController.getObjectFromFile("constraints")){
+//                if(constraint.getClass().equals(DistanceConstraint.class)) {
+//                    constraints.add((DistanceConstraint) constraint);
+//                }else if(constraint.getClass().equals(PositionConstraint.class)) {
+//                    constraints.add((PositionConstraint) constraint);
+//                }else if(constraint.getClass().equals(RopeConstraint.class)) {
+//                    constraints.add((RopeConstraint) constraint);
+//                }
+//            }
+//            System.out.println(constraints.get(0).getParticle().getPosition());
 
+            data.addConstraint(mouseConstraint);
         });
-        FlowPane menuPane = new FlowPane();
+
+        HBox clothConfigVBox = new HBox(20);
+
+        Label clothConfigLabel = new Label("Cloth:");
+
+        HBox columnsContainer = new HBox(5);
+        Label clothColumnsLabel = new Label("Columns:");
+        TextField clothColumnsInput = new TextField();
+        clothColumnsInput.setPrefWidth(50);
+        columnsContainer.getChildren().addAll(clothColumnsLabel,clothColumnsInput);
+
+        HBox rowsContainer = new HBox(5);
+        Label clothRowsLabel = new Label("Rows:");
+        TextField clothRowsInput = new TextField();
+        clothRowsInput.setPrefWidth(50);
+        rowsContainer.getChildren().addAll(clothRowsLabel,clothRowsInput);
+
+        HBox marginContainer = new HBox(5);
+        Label clothMarginLabel = new Label("Margin:");
+        TextField clothMarginInput = new TextField();
+        clothMarginInput.setPrefWidth(50);
+        marginContainer.getChildren().addAll(clothMarginLabel,clothMarginInput);
+
+
+        clothConfigVBox.getChildren().addAll(clothConfigLabel, columnsContainer, rowsContainer, marginContainer);
+
+        Label controlsInfo = new Label("i");
+        controlsInfo.setStyle("-fx-border-radius: 50; -fx-border-color: black; -fx-padding: 0 8; -fx-font-weight: bold;");
+        Tooltip tooltip = new Tooltip(
+                "Controls:" +"\n"+
+                        "middle mouse button:  reset" +"\n"+
+                        "left click:           add new particle (one connector)" +"\n"+
+                        "right click:          add new particle (two connectors)" +"\n"+
+                        "ctrl+left click:      add new particle with fixed position" +"\n"+
+                        "ctrl+right click:     add new particle (two connectors with distance 100)" +"\n"+
+                        "shift+left click:     add new particle with rope" +"\n"+
+                        "shift+right click:    connect two closest particles" +"\n"
+        );
+        Tooltip.install(controlsInfo, tooltip);
+
+        FlowPane menuPane = new FlowPane(saveButton,loadButton, clothConfigVBox, controlsInfo);
+        menuPane.setHgap(20);
         mainPane.setTop(menuPane);
 
 
@@ -74,16 +134,17 @@ public class VerletEngine extends Application {
     }
 
     public void init() {
-        for (int i = 0; i < 20; i++) {
-            particles.add(new Particle(new Point2D.Double(100 + 50 * i, 100)));
-        }
+        IOController.init();
 
-        for (int i = 0; i < 10; i++) {
-            constraints.add(new DistanceConstraint(particles.get(i), particles.get(i + 1)));
-        }
+        data = new ParticlesAndConstraintsSet();
 
-        constraints.add(new PositionConstraint(particles.get(10)));
-        constraints.add(mouseConstraint);
+        data.addParticle(new Particle(new Point2D.Double(50,50)));
+        data.addConstraint(new PositionConstraint(data.getParticles().get(0)));
+
+        data.addParticle(new Particle(new Point2D.Double(100,50)));
+        data.addConstraint(new PositionConstraint(data.getParticles().get(1)));
+
+        data.addConstraint(mouseConstraint);
     }
 
     private void draw(FXGraphics2D graphics) {
@@ -91,21 +152,21 @@ public class VerletEngine extends Application {
         graphics.setBackground(Color.white);
         graphics.clearRect(0, 0, (int) canvas.getWidth(), (int) canvas.getHeight());
 
-        for (Constraint c : constraints) {
+        for (Constraint c : data.getConstraints()) {
             c.draw(graphics);
         }
 
-        for (Particle p : particles) {
+        for (Particle p : data.getParticles()) {
             p.draw(graphics);
         }
     }
 
     private void update(double deltaTime) {
-        for (Particle p : particles) {
+        for (Particle p : data.getParticles()) {
             p.update((int) canvas.getWidth(), (int) canvas.getHeight());
         }
 
-        for (Constraint c : constraints) {
+        for (Constraint c : data.getConstraints()) {
             c.satisfy();
         }
     }
@@ -114,22 +175,23 @@ public class VerletEngine extends Application {
 
         Point2D mousePosition = new Point2D.Double(e.getX(), e.getY());
         Particle nearest = getNearest(mousePosition);
+
         if (nearest.getPosition().distance(mousePosition) > 10) {
             if (!e.isShiftDown()) {
             Particle newParticle = new Particle(mousePosition);
-            particles.add(newParticle);
+                data.addParticle(newParticle);
 
                 if (e.getButton() == MouseButton.PRIMARY) {
                     if (e.isControlDown()) {
-                        constraints.add(new PositionConstraint(newParticle));
+                        data.addConstraint(new PositionConstraint(newParticle));
                     } else {
-                        constraints.add(new DistanceConstraint(newParticle, nearest));
+                        data.addConstraint(new DistanceConstraint(newParticle, nearest));
                     }
                 }
 
                 else if (e.getButton() == MouseButton.SECONDARY) {
                     ArrayList<Particle> sorted = new ArrayList<>();
-                    sorted.addAll(particles);
+                    sorted.addAll(data.getParticles());
 
                     //sorteer alle elementen op afstand tot de muiscursor. De toegevoegde particle staat op 0, de nearest op 1, en de derde op 2
                     Collections.sort(sorted, new Comparator<Particle>() {
@@ -140,11 +202,11 @@ public class VerletEngine extends Application {
                     });
 
                     if (e.isControlDown()) {
-                        constraints.add(new DistanceConstraint(newParticle, nearest, 100));
-                        constraints.add(new DistanceConstraint(newParticle, sorted.get(2), 100));
+                        data.addConstraint(new DistanceConstraint(newParticle, nearest, 100));
+                        data.addConstraint(new DistanceConstraint(newParticle, sorted.get(2), 100));
                     } else {
-                        constraints.add(new DistanceConstraint(newParticle, nearest));
-                        constraints.add(new DistanceConstraint(newParticle, sorted.get(2)));
+                        data.addConstraint(new DistanceConstraint(newParticle, nearest));
+                        data.addConstraint(new DistanceConstraint(newParticle, sorted.get(2)));
                     }
 
                 }
@@ -152,20 +214,20 @@ public class VerletEngine extends Application {
                 else if (e.getButton() == MouseButton.MIDDLE) {
 
                     // Reset
-                    particles.clear();
-                    constraints.clear();
+                    data.getParticles().clear();
+                    data.getConstraints().clear();
                     init();
                 }
             }
             else {
                 if(e.getButton() == MouseButton.PRIMARY){
                     Particle newParticle = new Particle(mousePosition);
-                    particles.add(newParticle);
-                    constraints.add(new RopeConstraint(newParticle, nearest));
+                    data.addParticle(newParticle);
+                    data.addConstraint(new RopeConstraint(newParticle, nearest));
                 }
                 else if (e.getButton() == MouseButton.SECONDARY) {
                     ArrayList<Particle> sorted = new ArrayList<>();
-                    sorted.addAll(particles);
+                    sorted.addAll(data.getParticles());
 
                     //sorteer alle elementen op afstand tot de muiscursor. De toegevoegde particle staat op 0, de nearest op 1, en de derde op 2
                     Collections.sort(sorted, new Comparator<Particle>() {
@@ -175,15 +237,15 @@ public class VerletEngine extends Application {
                         }
                     });
 
-                    constraints.add(new DistanceConstraint(sorted.get(0), sorted.get(1)));
+                    data.addConstraint(new DistanceConstraint(sorted.get(0), sorted.get(1)));
                 }
             }
         }
     }
 
     private Particle getNearest(Point2D point) {
-        Particle nearest = particles.get(0);
-        for (Particle p : particles) {
+        Particle nearest = data.getParticles().get(0);
+        for (Particle p : data.getParticles()) {
             if (p.getPosition().distance(point) < nearest.getPosition().distance(point)) {
                 nearest = p;
             }
