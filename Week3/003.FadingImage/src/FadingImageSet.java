@@ -55,7 +55,7 @@ public class FadingImageSet {
     public void update(double deltaTime){
 //        System.out.println(opacity);
         if(opacity >= 1.0f){
-            System.out.println("next image");
+//            System.out.println("next image");
             if(currentImage  == images.size()-1){
                 currentImage = 0;
                 secondImage = images.size()-1;
