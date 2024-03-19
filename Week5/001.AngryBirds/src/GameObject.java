@@ -18,6 +18,13 @@ public class GameObject {
     private Vector2 offset;
     private double scale;
 
+    public GameObject(BufferedImage image, Body body, Vector2 offset, double scale) {
+        this.body = body;
+        this.image = image;
+        this.offset = offset;
+        this.scale = scale;
+    }
+
     public GameObject(String imageFile, Body body, Vector2 offset, double scale) {
         this.body = body;
         this.offset = offset;
@@ -28,6 +35,8 @@ public class GameObject {
             e.printStackTrace();
         }
     }
+
+
 
     public void draw(FXGraphics2D g2d) {
         if (image == null) {
