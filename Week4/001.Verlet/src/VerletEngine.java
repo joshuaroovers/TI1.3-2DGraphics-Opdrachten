@@ -29,6 +29,10 @@ public class VerletEngine extends Application {
 //    private ArrayList<Constraint> constraints = new ArrayList<>();
     private PositionConstraint mouseConstraint = new PositionConstraint(null);
 
+    private TextField clothColumnsInput;
+    private TextField clothRowsInput;
+    private TextField clothMarginInput;
+
     @Override
     public void start(Stage stage) throws Exception {
         BorderPane mainPane = new BorderPane();
@@ -64,19 +68,19 @@ public class VerletEngine extends Application {
 
         HBox columnsContainer = new HBox(5);
         Label clothColumnsLabel = new Label("Columns:");
-        TextField clothColumnsInput = new TextField();
+        clothColumnsInput = new TextField();
         clothColumnsInput.setPrefWidth(50);
         columnsContainer.getChildren().addAll(clothColumnsLabel,clothColumnsInput);
 
         HBox rowsContainer = new HBox(5);
         Label clothRowsLabel = new Label("Rows:");
-        TextField clothRowsInput = new TextField();
+        clothRowsInput = new TextField();
         clothRowsInput.setPrefWidth(50);
         rowsContainer.getChildren().addAll(clothRowsLabel,clothRowsInput);
 
         HBox marginContainer = new HBox(5);
         Label clothMarginLabel = new Label("Margin:");
-        TextField clothMarginInput = new TextField();
+        clothMarginInput = new TextField();
         clothMarginInput.setPrefWidth(50);
         marginContainer.getChildren().addAll(clothMarginLabel,clothMarginInput);
 
@@ -88,6 +92,7 @@ public class VerletEngine extends Application {
         Tooltip tooltip = new Tooltip(
                 "Controls:" +"\n"+
                         "middle mouse button:  reset" +"\n"+
+                        "alt+click:            create new cloth" +"\n"+
                         "left click:           add new particle (one connector)" +"\n"+
                         "right click:          add new particle (two connectors)" +"\n"+
                         "ctrl+left click:      add new particle with fixed position" +"\n"+
@@ -177,67 +182,97 @@ public class VerletEngine extends Application {
         Particle nearest = getNearest(mousePosition);
 
         if (nearest.getPosition().distance(mousePosition) > 10) {
-            if (!e.isShiftDown()) {
-            Particle newParticle = new Particle(mousePosition);
-                data.addParticle(newParticle);
+            if(e.isAltDown()){
+                int columns = Integer.parseInt(clothColumnsInput.getText());
+                int rows = Integer.parseInt(clothRowsInput.getText());
+                int margin = Integer.parseInt(clothMarginInput.getText());
 
-                if (e.getButton() == MouseButton.PRIMARY) {
-                    if (e.isControlDown()) {
-                        data.addConstraint(new PositionConstraint(newParticle));
-                    } else {
-                        data.addConstraint(new DistanceConstraint(newParticle, nearest));
-                    }
-                }
+                if(columns > 0 && rows > 0 && margin >= 0){
+                    ArrayList<Particle> clothParticles = new ArrayList<>();
+                    for (int i = 0; i < rows; i++) {
+                        for (int j = 0; j < columns; j++) {
+                            Particle particle = new Particle(new Point2D.Double(mousePosition.getX()+((margin+50)*j) ,mousePosition.getY() +((margin+50)*i) ));
+                            clothParticles.add(particle);
 
-                else if (e.getButton() == MouseButton.SECONDARY) {
-                    ArrayList<Particle> sorted = new ArrayList<>();
-                    sorted.addAll(data.getParticles());
-
-                    //sorteer alle elementen op afstand tot de muiscursor. De toegevoegde particle staat op 0, de nearest op 1, en de derde op 2
-                    Collections.sort(sorted, new Comparator<Particle>() {
-                        @Override
-                        public int compare(Particle o1, Particle o2) {
-                            return (int) (o1.getPosition().distance(mousePosition) - o2.getPosition().distance(mousePosition));
+                            data.addParticle(particle);
                         }
-                    });
-
-                    if (e.isControlDown()) {
-                        data.addConstraint(new DistanceConstraint(newParticle, nearest, 100));
-                        data.addConstraint(new DistanceConstraint(newParticle, sorted.get(2), 100));
-                    } else {
-                        data.addConstraint(new DistanceConstraint(newParticle, nearest));
-                        data.addConstraint(new DistanceConstraint(newParticle, sorted.get(2)));
                     }
 
-                }
+//                    ArrayList<Constraint> clothConstraints = new ArrayList<>();
+                    for (int i = 0; i < rows; i++) {
+                        for (int j = 0; j < columns; j++) {
+                            if(i == 0){//first row gets positionConstraint
+                                data.addConstraint(new PositionConstraint(clothParticles.get(i+j)));
+                            }else{
+                                //Rope constraint current with particle above it
+                                data.addConstraint(new RopeConstraint(clothParticles.get(i*rows+j),clothParticles.get((i-1)*rows+j)));
+                                if(j != columns-1){//if it isn't the last on in the row add rope constraint to the next particle to the right
+                                    data.addConstraint(new RopeConstraint(clothParticles.get(i*rows+j),clothParticles.get(i*rows+j+1)));
+                                }
+                            }
+                        }
+                    }
 
-                else if (e.getButton() == MouseButton.MIDDLE) {
-
-                    // Reset
-                    data.getParticles().clear();
-                    data.getConstraints().clear();
-                    init();
                 }
             }
             else {
-                if(e.getButton() == MouseButton.PRIMARY){
+                if (!e.isShiftDown()) {
                     Particle newParticle = new Particle(mousePosition);
                     data.addParticle(newParticle);
-                    data.addConstraint(new RopeConstraint(newParticle, nearest));
-                }
-                else if (e.getButton() == MouseButton.SECONDARY) {
-                    ArrayList<Particle> sorted = new ArrayList<>();
-                    sorted.addAll(data.getParticles());
 
-                    //sorteer alle elementen op afstand tot de muiscursor. De toegevoegde particle staat op 0, de nearest op 1, en de derde op 2
-                    Collections.sort(sorted, new Comparator<Particle>() {
-                        @Override
-                        public int compare(Particle o1, Particle o2) {
-                            return (int) (o1.getPosition().distance(mousePosition) - o2.getPosition().distance(mousePosition));
+                    if (e.getButton() == MouseButton.PRIMARY) {
+                        if (e.isControlDown()) {
+                            data.addConstraint(new PositionConstraint(newParticle));
+                        } else {
+                            data.addConstraint(new DistanceConstraint(newParticle, nearest));
                         }
-                    });
+                    } else if (e.getButton() == MouseButton.SECONDARY) {
+                        ArrayList<Particle> sorted = new ArrayList<>();
+                        sorted.addAll(data.getParticles());
 
-                    data.addConstraint(new DistanceConstraint(sorted.get(0), sorted.get(1)));
+                        //sorteer alle elementen op afstand tot de muiscursor. De toegevoegde particle staat op 0, de nearest op 1, en de derde op 2
+                        Collections.sort(sorted, new Comparator<Particle>() {
+                            @Override
+                            public int compare(Particle o1, Particle o2) {
+                                return (int) (o1.getPosition().distance(mousePosition) - o2.getPosition().distance(mousePosition));
+                            }
+                        });
+
+                        if (e.isControlDown()) {
+                            data.addConstraint(new DistanceConstraint(newParticle, nearest, 100));
+                            data.addConstraint(new DistanceConstraint(newParticle, sorted.get(2), 100));
+                        } else {
+                            data.addConstraint(new DistanceConstraint(newParticle, nearest));
+                            data.addConstraint(new DistanceConstraint(newParticle, sorted.get(2)));
+                        }
+
+                    } else if (e.getButton() == MouseButton.MIDDLE) {
+
+                        // Reset
+                        data.getParticles().clear();
+                        data.getConstraints().clear();
+                        init();
+                    }
+                }
+                else {
+                    if (e.getButton() == MouseButton.PRIMARY) {
+                        Particle newParticle = new Particle(mousePosition);
+                        data.addParticle(newParticle);
+                        data.addConstraint(new RopeConstraint(newParticle, nearest));
+                    } else if (e.getButton() == MouseButton.SECONDARY) {
+                        ArrayList<Particle> sorted = new ArrayList<>();
+                        sorted.addAll(data.getParticles());
+
+                        //sorteer alle elementen op afstand tot de muiscursor. De toegevoegde particle staat op 0, de nearest op 1, en de derde op 2
+                        Collections.sort(sorted, new Comparator<Particle>() {
+                            @Override
+                            public int compare(Particle o1, Particle o2) {
+                                return (int) (o1.getPosition().distance(mousePosition) - o2.getPosition().distance(mousePosition));
+                            }
+                        });
+
+                        data.addConstraint(new DistanceConstraint(sorted.get(0), sorted.get(1)));
+                    }
                 }
             }
         }
