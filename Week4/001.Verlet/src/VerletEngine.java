@@ -198,16 +198,16 @@ public class VerletEngine extends Application {
                         }
                     }
 
-//                    ArrayList<Constraint> clothConstraints = new ArrayList<>();
                     for (int i = 0; i < rows; i++) {
                         for (int j = 0; j < columns; j++) {
                             if(i == 0){//first row gets positionConstraint
                                 data.addConstraint(new PositionConstraint(clothParticles.get(i+j)));
                             }else{
                                 //Rope constraint current with particle above it
-                                data.addConstraint(new RopeConstraint(clothParticles.get(i*rows+j),clothParticles.get((i-1)*rows+j)));
+//                                System.out.println("("+i+","+j+")  "+(i*columns+j) + " " + ((i-1)*columns+j));
+                                data.addConstraint(new RopeConstraint(clothParticles.get(i*columns+j),clothParticles.get((i-1)*columns+j)));
                                 if(j != columns-1){//if it isn't the last on in the row add rope constraint to the next particle to the right
-                                    data.addConstraint(new RopeConstraint(clothParticles.get(i*rows+j),clothParticles.get(i*rows+j+1)));
+                                    data.addConstraint(new RopeConstraint(clothParticles.get(i*columns+j),clothParticles.get(i*columns+j+1)));
                                 }
                             }
                         }
