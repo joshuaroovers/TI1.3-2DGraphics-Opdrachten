@@ -7,6 +7,7 @@ import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -14,7 +15,6 @@ import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Geometry;
-import org.dyn4j.geometry.MassType;
 import org.dyn4j.geometry.Vector2;
 import org.jfree.fx.FXGraphics2D;
 import org.jfree.fx.ResizableCanvas;
@@ -39,8 +39,8 @@ public class AngryBirds extends Application {
         showDebug.setOnAction(e -> {
             debugSelected = showDebug.isSelected();
         });
-        showDebug.setSelected(true);
-        debugSelected = true;
+//        showDebug.setSelected(true);
+//        debugSelected = true;
 
         mainPane.setTop(showDebug);
 
@@ -52,31 +52,6 @@ public class AngryBirds extends Application {
         mousePicker = new MousePicker(canvas);
 
         canvas.setOnMouseClicked(e -> mouseClicked(e));
-
-        Body floor = new Body();
-        BodyFixture fixture = new BodyFixture(Geometry.createRectangle(20,0.2));
-//        fixture.setRestitution(.25);
-//        fixture.setFriction(0.5);
-        floor.addFixture(fixture);
-        floor.getTransform().setTranslation(new Vector2(0,-4.5));
-//        floor.setMass(MassType.NORMAL);
-        world.addBody(floor);
-        gameObjects.add(new GameObject("angry-birds-png-29.png", floor, new Vector2(0,0), 0.8));
-
-
-        Body sling = new Body();
-        BodyFixture fixture2 = new BodyFixture(Geometry.createRectangle(0.5,1.5));
-//        fixture2.setRestitution(.25);
-//        fixture2.setFriction(0.5);
-
-        sling.addFixture(fixture2);
-        sling.getTransform().setTranslation(new Vector2(-7,-2));
-//        floor.setMass(MassType.NORMAL);
-        world.addBody(sling);
-        gameObjects.add(new GameObject("angry-birds-png-29.png", sling, new Vector2(0,0), 0.8));
-
-
-
 
 
         new AnimationTimer() {
@@ -102,20 +77,52 @@ public class AngryBirds extends Application {
     private void mouseClicked(MouseEvent e) {
         //I know this isn't reliable for when the camera zooms out but it's nice for testing
         Point2D mousePosition = new Point2D.Double(e.getX(),e.getY());
-        if(e.isAltDown()){
-            gameObjects.add(gameObjectHelper.createBird(mousePosition, world));
-        }
-        else if(e.isShiftDown()){
-            gameObjects.add(gameObjectHelper.createBlock(mousePosition ,world));
+        if(e.isShiftDown()){
+            if(e.getButton() == MouseButton.PRIMARY)
+                gameObjects.add(gameObjectHelper.createBird(mousePosition, world, true));
+            else if(e.getButton() == MouseButton.SECONDARY)
+                gameObjects.add(gameObjectHelper.createPig(mousePosition, world));
         }
         else if(e.isControlDown()){
-
+            if(e.getButton() == MouseButton.PRIMARY)
+                gameObjects.add(gameObjectHelper.createBlock(mousePosition, world));
+            else if(e.getButton() == MouseButton.SECONDARY)
+                gameObjects.add(gameObjectHelper.createSmallBarBlock(mousePosition, world));
+        }
+        else if(e.isAltDown()){
+            if(e.getButton() == MouseButton.PRIMARY)
+                gameObjects.add(gameObjectHelper.createLongBarBlock(mousePosition, world, false));
+            else if(e.getButton() == MouseButton.SECONDARY)
+                gameObjects.add(gameObjectHelper.createLongBarBlock(mousePosition, world, true));
         }
     }
 
     public void init() {
         world = new World();
         world.setGravity(new Vector2(0, -9.8));
+
+        gameObjects.add(gameObjectHelper.createFloor(world));
+
+        gameObjects.add(gameObjectHelper.createBird(new Point2D.Double(200,850), world, false));
+
+        gameObjects.add(gameObjectHelper.createSmallBarBlock(new Point2D.Double(1540,850),world));
+        gameObjects.add(gameObjectHelper.createBlock(new Point2D.Double(1750,850),world));
+        gameObjects.add(gameObjectHelper.createLongBarBlock(new Point2D.Double(1650,820),world,false));
+
+        gameObjects.add(gameObjectHelper.createLongBarBlock(new Point2D.Double(1600,650),world,true));
+        gameObjects.add(gameObjectHelper.createLongBarBlock(new Point2D.Double(1650,650),world,true));
+        gameObjects.add(gameObjectHelper.createLongBarBlock(new Point2D.Double(1700,650),world,true));
+
+        gameObjects.add(gameObjectHelper.createLongBarBlock(new Point2D.Double(1650,500),world,false));
+        gameObjects.add(gameObjectHelper.createLongBarBlock(new Point2D.Double(1650,480),world,false));
+//        gameObjects.add(gameObjectHelper.createLongBarBlock(new Point2D.Double(1650,450),world,false));
+
+
+        gameObjects.add(gameObjectHelper.createPig(new Point2D.Double(1600,450),world));
+        gameObjects.add(gameObjectHelper.createSmallBarBlock(new Point2D.Double(1700,450),world));
+        gameObjects.add(gameObjectHelper.createPig(new Point2D.Double(1700,350),world));
+
+
     }
 
     public void draw(FXGraphics2D graphics) {
@@ -136,6 +143,19 @@ public class AngryBirds extends Application {
             graphics.setColor(Color.blue);
             DebugDraw.draw(graphics, world, 100);
         }
+
+        graphics.setColor(Color.BLACK);
+        graphics.scale(1, -1);
+        graphics.drawString(
+                "'Controls': " +"\n"+
+                        "     shift+left click:        summon bird (with momentum)"+"\n"+
+                        "     shift+right click:      summon pig"+"\n"+
+                        "     ctrl+left click:          summon cube"+"\n"+
+                        "     ctrl+right click:        summon half cube"+"\n"+
+                        "     alt+left click:           summon long bar (horizontal)"+"\n"+
+                        "     alt+right click:         summon long bar (vertical)"+"\n"
+                ,-800,-400);
+        graphics.scale(1, -1);
 
         graphics.setTransform(originalTransform);
     }
