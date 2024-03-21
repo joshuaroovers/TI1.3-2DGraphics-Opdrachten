@@ -74,11 +74,13 @@ public class Eindopdracht extends Application {
 
     public void init()
     {
-        AstralBody sun = (new AstralBody(new Point2D.Double(0,0), 100, Color.YELLOW, true, 1 ));
+        AstralBody sun = (new AstralBody("sun", new Point2D.Double(0,0), 100, 0.2, Color.YELLOW));
         astralBodies.add(sun);
-        AstralBody planet1 = (new AstralBody(new Point2D.Double(300,0), 30, Color.BLUE, true, 1, sun ));
+        AstralBody planet1 = (new AstralBody("planet1",new Point2D.Double(300,0), 30, 1, Color.BLUE, sun ));
         astralBodies.add(planet1);
-        AstralBody moon1 = new AstralBody(new Point2D.Double(100,0), 5, Color.LIGHT_GRAY, true, 1, planet1);
+        AstralBody moon1 = new AstralBody("moon1", new Point2D.Double(200,0), 10, 3, Color.WHITE, planet1);
         astralBodies.add(moon1);
+        AstralBody moon2 = new AstralBody("moon2", new Point2D.Double(150,0), 10, -1, Color.GREEN, planet1);
+        astralBodies.add(moon2);
     }
 }
