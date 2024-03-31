@@ -23,7 +23,8 @@ public class AstralBody {
         this.speed = speed;
         this.orbitBody = orbitBody;
 
-        System.out.println(this+" ("+ (int)this.shape.getBounds().getX() +","+ (int)this.shape.getBounds().getY() + ")  " + orbitBody);
+        System.out.println(this +" speed: "+speed);
+//        System.out.println(this+" ("+ (int)this.shape.getBounds().getX() +","+ (int)this.shape.getBounds().getY() + ")  " + orbitBody);
     }
 
 
@@ -40,7 +41,7 @@ public class AstralBody {
     }
 
     public void update(double time){
-        rotation += time*speed;
+        this.rotation += time*speed;
     }
 
     public void draw(Graphics2D g2d){
@@ -48,11 +49,11 @@ public class AstralBody {
 
 
         if(!isCenterBodyOfSystem) {
-            g2d.rotate(rotation, orbitBody.getPosition().getX(), orbitBody.getPosition().getY() );
+            g2d.rotate(this.rotation, orbitBody.getPosition().getX(), orbitBody.getPosition().getY() );
 
             tx.translate(-(radius / 2) - (orbitBody.getPosition().getX() - pos.getX()), -(radius / 2) - (orbitBody.getPosition().getY() - pos.getY()));
         }else {
-            g2d.rotate(rotation);
+            g2d.rotate(this.rotation);
 
             tx.translate(-(radius / 2), -(radius / 2));
         }
