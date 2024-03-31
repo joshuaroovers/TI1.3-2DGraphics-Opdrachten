@@ -49,15 +49,16 @@ public class Eindopdracht extends Application {
         graphics.clearRect(0, 0, (int)canvas.getWidth(), (int)canvas.getHeight());
         graphics.translate((int)canvas.getWidth()/2, (int)canvas.getHeight()/2);
 
-        graphics.setColor(Color.RED);
-        graphics.drawLine(0,0,500,0);
-        graphics.setColor(Color.BLUE);
-        graphics.drawLine(0,0,0,500);
-        graphics.setColor(Color.YELLOW);
-        graphics.drawLine(-500,0,0,0);
-        graphics.setColor(Color.GREEN);
-        graphics.drawLine(0,-500,0,0);
-
+        if(false) {
+            graphics.setColor(Color.RED);
+            graphics.drawLine(0, 0, 5000, 0);
+            graphics.setColor(Color.BLUE);
+            graphics.drawLine(0, 0, 0, 5000);
+            graphics.setColor(Color.YELLOW);
+            graphics.drawLine(-5000, 0, 0, 0);
+            graphics.setColor(Color.GREEN);
+            graphics.drawLine(0, -5000, 0, 0);
+        }
 
         for (AstralBody astralBody : astralBodies) {
             astralBody.draw(graphics);
@@ -78,12 +79,8 @@ public class Eindopdracht extends Application {
         double sizeScale = 0.005;
         double baseDistance = 200;
         double baseSpeed = 50;
-        double additionalSizeScale = 1;
-        double additionalDistanceScale = 1;
-        if(true){
-            additionalSizeScale = 0.1;
-            additionalDistanceScale = 0.5;
-        }
+        double additionalSizeScale = 0.1;
+        double additionalDistanceScale = 0.5;
 
 
         AstralBody sun = (new AstralBody("sun", new Point2D.Double(0,0), (1392000*sizeScale)*additionalSizeScale*0.1, 0, Color.YELLOW));
